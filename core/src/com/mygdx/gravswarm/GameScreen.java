@@ -312,7 +312,7 @@ public class GameScreen extends ScreenAdapter {
 				gravities.add(touchGravities[pointer]);
 				return true;
 			}
-			if(button==Input.Buttons.LEFT&&screenMode==ScreenMode.SPAWN)
+			if((button==Input.Buttons.LEFT&&screenMode==ScreenMode.SPAWN)||button==Input.Buttons.RIGHT)
 			{
 				downX=x;
 				downY=y;
@@ -331,13 +331,13 @@ public class GameScreen extends ScreenAdapter {
 			return false;
 		}
 		@Override public boolean touchUp(int x, int y, int pointer, int button) {
-			if(button!= Input.Buttons.LEFT) return false;
-			if (touchGravities[pointer] != null) {
+			//if(button!= Input.Buttons.LEFT) return false;
+			if (touchGravities[pointer] != null&&pointer==Input.Buttons.LEFT) {
 				gravitiesToBeCulled.add(touchGravities[pointer]);
 				touchGravities[pointer] = null;
 				return true;
 			}
-			if(screenMode == ScreenMode.SPAWN)
+			if((button==Input.Buttons.LEFT&&screenMode==ScreenMode.SPAWN)||button==Input.Buttons.RIGHT)
 			{
 				for (int i = 0; i < 50; ++i) {
 					worldPoint.set(cam.unproject(workerVec.set(downX, downY, 0f)));
@@ -379,6 +379,12 @@ public class GameScreen extends ScreenAdapter {
 				case Input.Keys.C:
 					blackScreen=!blackScreen;
 					setScreenColor(blackScreen);
+					return true;
+				case Input.Keys.UP:
+					GRAVITY_PLANE_DISTANCE+=.1f;
+					return true;
+				case Input.Keys.DOWN:
+					GRAVITY_PLANE_DISTANCE-=.1f;
 					return true;
 			}
 			return false;
