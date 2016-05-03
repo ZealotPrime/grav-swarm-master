@@ -38,7 +38,7 @@ import java.util.concurrent.CyclicBarrier;
 public class GameScreen extends ScreenAdapter {
 	enum ClipPlane{NEAR, FAR, LEFT, RIGHT, TOP, BOTTOM};
 	enum ScreenMode{GRAVITY,PLANECHANGE,SPAWN};
-	enum EdgeMode{NONE, WARP, REFLECT};
+	enum EdgeMode{NONE, WARP, REFLECT,DESPAWN};
 	float LIGHT_INTENSITIY;
 	float GRAVITY_PLANE_DISTANCE;
 	int MOONS_TO_SPAWN;
@@ -91,12 +91,13 @@ public class GameScreen extends ScreenAdapter {
 			}
 		};
 
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		LIGHT_INTENSITIY=game.settings.getLIGHT_INTENSITY();
 		GRAVITY_PLANE_DISTANCE=game.settings.getTOUCH_PLANE_DEPTH();
 		MOONS_TO_SPAWN=game.settings.getINITIAL_MOONS_TO_SPAWN();
 		THREAD_COUNT=game.settings.getWORKER_THREADS();
-		edgeMode=EdgeMode.NONE;
+		edgeMode=edgeMode.values()[game.settings.getBOUNDARY_MODE().ordinal()];
 		screenMode=ScreenMode.GRAVITY;
 
 		environment = new Environment();
@@ -181,13 +182,17 @@ public class GameScreen extends ScreenAdapter {
 						case REFLECT:
 							moons.elementAt(moonNumber).reflect();
 							break;
+						case DESPAWN:
+							moons.elementAt(moonNumber).reset();
+							moons.remove(moonNumber);
+							break;
 					}
 				}
 			}
 			moons.elementAt(moonNumber).move();
 		}
 
-		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		modelBatch.begin(cam);
 		modelBatch.render(moons, environment);
@@ -341,18 +346,11 @@ public class GameScreen extends ScreenAdapter {
 					speedCheck=true;
 					return true;
 				case Input.Keys.E:
-					switch (edgeMode)
-					{
-						case NONE:
-							edgeMode=EdgeMode.WARP;
-							break;
-						case WARP:
-							edgeMode=EdgeMode.REFLECT;
-							break;
-						case REFLECT:
-							edgeMode=EdgeMode.NONE;
-							break;
-					}
+					int tmp=edgeMode.ordinal();
+					++tmp;
+					if(tmp>=edgeMode.values().length)
+						tmp=0;
+					edgeMode=edgeMode.values()[tmp];
 					return true;
 				case Input.Keys.S:
 					screenMode=ScreenMode.SPAWN;

@@ -45,6 +45,7 @@ public class MainMenuScreen implements Screen
         button2_Instructions = new Texture("2-instructions.png");
         button3_Settings = new Texture("3-settings.png");
         button4_Exit = new Texture("4-exit.png");
+        Gdx.gl.glClearColor(1, 1, 1, 1);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class MainMenuScreen implements Screen
     @Override
     public void render(float delta)
     {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
