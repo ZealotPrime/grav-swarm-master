@@ -38,12 +38,13 @@ import java.util.concurrent.CyclicBarrier;
 public class GameScreen extends ScreenAdapter {
 	enum ClipPlane{NEAR, FAR, LEFT, RIGHT, TOP, BOTTOM};
 	enum ScreenMode{GRAVITY,PLANECHANGE,SPAWN};
-	enum EdgeMode{NONE, WARP, REFLECT,DESPAWN};
+	enum EdgeMode{NONE, WARP, REFLECT,DESPAWN,STOP};
 	float LIGHT_INTENSITIY;
 	float GRAVITY_PLANE_DISTANCE;
 	int MOONS_TO_SPAWN;
 	int THREAD_COUNT;
 	boolean speedCheck;
+	boolean blackScreen;
 	EdgeMode edgeMode;
 	ScreenMode screenMode;
 	GravSwarm game;
@@ -75,6 +76,8 @@ public class GameScreen extends ScreenAdapter {
 	{
 		game=currentGame;
 		speedCheck=false;
+		blackScreen=true;
+		setScreenColor(blackScreen);
 		Random rnd=new Random();
 		warpRay=new Ray();
 		workerVec=new Vector3();
@@ -84,6 +87,7 @@ public class GameScreen extends ScreenAdapter {
 		gravitiesToBeCulled=new Vector<Gravity>();
 		moonsToReposition=new Vector<Moon>();
 		gravityHandlers=new Vector<GravityHandler>();
+		moonsToDespawn=new Vector<Moon>();
 		moonTexture=new Material(ColorAttribute.createDiffuse(1,1,1,1));
 		freeGravities=new Pool<Gravity>() {
 			@Override
@@ -186,6 +190,9 @@ public class GameScreen extends ScreenAdapter {
 						case DESPAWN:
 							moonsToDespawn.add(moons.elementAt(moonNumber));
 							break;
+						case STOP:
+							moons.elementAt(moonNumber).scaleVelocity(0f);
+							break;
 					}
 				}
 			}
@@ -195,8 +202,8 @@ public class GameScreen extends ScreenAdapter {
 
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		modelBatch.begin(cam);
-		modelBatch.render(moons, environment);
-		//modelBatch.render(visualTouchPlane, environment);
+		if(moons.size()>0)
+			modelBatch.render(moons, environment);
 		modelBatch.end();
 
 		while(gravitiesToBeCulled.size()>0)
@@ -212,8 +219,10 @@ public class GameScreen extends ScreenAdapter {
 		}
 		while(moonsToDespawn.size()>0)
 		{
-			moons.elementAt(0).reset();
-			moons.remove(0);
+			moonsToDespawn.elementAt(0).reset();
+			moons.remove(moonsToDespawn.elementAt(0));
+			moonsToDespawn.remove(0);
+			assignMoons(false);
 		}
 		try {
 			barrier.await();//restart gravity calculations
@@ -222,6 +231,13 @@ public class GameScreen extends ScreenAdapter {
 		} catch (BrokenBarrierException e) {
 			e.printStackTrace();
 		}
+	}
+
+	void setScreenColor(boolean black)
+	{
+		blackScreen=black;
+		int c=blackScreen?0:1;
+		Gdx.gl.glClearColor(c,c,c,1);
 	}
 
 	void assignMoons(boolean firstrun)
@@ -359,6 +375,10 @@ public class GameScreen extends ScreenAdapter {
 					return true;
 				case Input.Keys.S:
 					screenMode=ScreenMode.SPAWN;
+					return true;
+				case Input.Keys.C:
+					blackScreen=!blackScreen;
+					setScreenColor(blackScreen);
 					return true;
 			}
 			return false;
@@ -656,7 +676,7 @@ public class GameScreen extends ScreenAdapter {
 				if(lowBound==-1)
 					lowBound=0;
 				moonNumber=lowBound;
-				while(moonNumber<highBound)
+				while(moonNumber<highBound&&moons.size()>0)
 				{
 					for(gravityNumber=0;gravityNumber<gravities.size();++gravityNumber)
 					{
