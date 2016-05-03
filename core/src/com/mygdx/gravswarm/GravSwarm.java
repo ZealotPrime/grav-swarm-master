@@ -11,6 +11,7 @@ public class GravSwarm extends Game
 {
     SpriteBatch batch;
     BitmapFont font;
+    public Settings settings;
 
     @Override
     public void create()
@@ -18,6 +19,7 @@ public class GravSwarm extends Game
         batch = new SpriteBatch();
         font = new BitmapFont();
         this.setScreen(new MainMenuScreen(this));
+        settings = new Settings();
     }
 
     @Override

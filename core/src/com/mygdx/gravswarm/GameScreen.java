@@ -1,6 +1,7 @@
 package com.mygdx.gravswarm;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -45,6 +46,7 @@ public class GameScreen extends ScreenAdapter {
 	boolean speedCheck;
 	EdgeMode edgeMode;
 	ScreenMode screenMode;
+	GravSwarm game;
 
 	Vector<Moon> moons;
 	Pool<Gravity> freeGravities;
@@ -68,8 +70,9 @@ public class GameScreen extends ScreenAdapter {
 	CyclicBarrier barrier;
 
 
-	public GameScreen()
+	public GameScreen(GravSwarm currentGame)
 	{
+		game=currentGame;
 		speedCheck=false;
 		Random rnd=new Random();
 		warpRay=new Ray();
@@ -89,10 +92,10 @@ public class GameScreen extends ScreenAdapter {
 		};
 
 
-		LIGHT_INTENSITIY=50000f;
-		GRAVITY_PLANE_DISTANCE=.2f;
-		MOONS_TO_SPAWN=2000;
-		THREAD_COUNT=10;
+		LIGHT_INTENSITIY=game.settings.getLIGHT_INTENSITY();
+		GRAVITY_PLANE_DISTANCE=game.settings.getTOUCH_PLANE_DEPTH();
+		MOONS_TO_SPAWN=game.settings.getINITIAL_MOONS_TO_SPAWN();
+		THREAD_COUNT=game.settings.getWORKER_THREADS();
 		edgeMode=EdgeMode.NONE;
 		screenMode=ScreenMode.GRAVITY;
 
