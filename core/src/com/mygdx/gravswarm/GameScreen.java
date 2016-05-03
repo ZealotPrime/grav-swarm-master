@@ -55,6 +55,7 @@ public class GameScreen extends ScreenAdapter {
 	Vector<GravityHandler>gravityHandlers;
 	Vector<Gravity>gravitiesToBeCulled;
 	Vector<Moon> moonsToReposition;
+	Vector<Moon> moonsToDespawn;
 	Material moonTexture;
 	Ray warpRay;
 	Vector3 workerVec, workerVec2;
@@ -183,8 +184,7 @@ public class GameScreen extends ScreenAdapter {
 							moons.elementAt(moonNumber).reflect();
 							break;
 						case DESPAWN:
-							moons.elementAt(moonNumber).reset();
-							moons.remove(moonNumber);
+							moonsToDespawn.add(moons.elementAt(moonNumber));
 							break;
 					}
 				}
@@ -209,6 +209,11 @@ public class GameScreen extends ScreenAdapter {
 		{
 			moonsToReposition.elementAt(0).transform.setToTranslation(moonsToReposition.elementAt(0).getNextPosition());
 			moonsToReposition.remove(0);
+		}
+		while(moonsToDespawn.size()>0)
+		{
+			moons.elementAt(0).reset();
+			moons.remove(0);
 		}
 		try {
 			barrier.await();//restart gravity calculations
