@@ -11,6 +11,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -28,6 +29,8 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Pool;
 
 import java.util.Random;
@@ -60,7 +63,11 @@ public class GameScreen extends ScreenAdapter {
 	Material moonTexture;
 	Ray warpRay;
 	Vector3 workerVec, workerVec2;
-	//Stage ui;
+
+	Stage ui;
+	Skin skin;
+
+	TextButton stopButton;
 
 	PerspectiveCamera cam;
 	Model modelTemplate;
@@ -95,6 +102,16 @@ public class GameScreen extends ScreenAdapter {
 				return new Gravity(1f);
 			}
 		};
+
+		Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+		pixmap.setColor(Color.WHITE);
+		pixmap.fill();
+		skin=new Skin();
+		skin.add("white", new Texture(pixmap));
+		ui=new Stage();
+		stopButton=new TextButton("Slow",skin);
+		ui.addActor(stopButton);
+
 
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -205,6 +222,8 @@ public class GameScreen extends ScreenAdapter {
 		if(moons.size()>0)
 			modelBatch.render(moons, environment);
 		modelBatch.end();
+		ui.act();
+		ui.draw();
 
 		while(gravitiesToBeCulled.size()>0)
 		{
