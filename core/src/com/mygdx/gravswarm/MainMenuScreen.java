@@ -2,6 +2,7 @@ package com.mygdx.gravswarm;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,6 +16,7 @@ public class MainMenuScreen implements Screen
 {
     final GravSwarm game;
     OrthographicCamera camera;
+    Sound menuSelectionSound;
 
     Texture appLogo;
     Texture button1_Start;
@@ -38,9 +40,10 @@ public class MainMenuScreen implements Screen
         //     camera.setToOrtho(false);
         camera.setToOrtho(false, 1280, 720);
 
+        menuSelectionSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/menu_selection.wav"));
+
         appLogo = new Texture("logo1.png");
         appBackground = new Texture("test_background.png");
-
         button1_Start = new Texture("1-start.png");
         button2_Instructions = new Texture("2-instructions.png");
         button3_Settings = new Texture("3-settings.png");
@@ -55,9 +58,7 @@ public class MainMenuScreen implements Screen
     }
 
     @Override
-    public void render(float delta)
-    {
-
+    public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -65,7 +66,6 @@ public class MainMenuScreen implements Screen
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
-        //game.font.draw(game.batch, "Test", 100, 150);
         game.batch.draw(appBackground, 0, 0);
         game.batch.draw(appLogo, 120, 190);
         game.batch.draw(button1_Start, 600, 450);
@@ -74,7 +74,6 @@ public class MainMenuScreen implements Screen
         game.batch.draw(button4_Exit, 600, 180);
 
         game.batch.end();
-
 
 
         Gdx.input.setCatchBackKey(false);
@@ -88,13 +87,16 @@ public class MainMenuScreen implements Screen
             // if the start button is pressed, go to the Game screen
             if (Start_button.contains(tmp.x, tmp.y))
             {
+                menuSelectionSound.play();
                 Gdx.input.vibrate(20);
                 game.setScreen(new GameScreen(game));
                 dispose();
             }
+
             // if the instructions button is pressed, go to the Instructions screen
             if (Instructions_button.contains(tmp.x, tmp.y))
             {
+                menuSelectionSound.play();
                 Gdx.input.vibrate(20);
                 game.setScreen(new InstructionsScreen(game));
                 dispose();
@@ -102,6 +104,7 @@ public class MainMenuScreen implements Screen
             // if the settings button is pressed, go to the Settings screen
             if (Settings_button.contains(tmp.x, tmp.y))
             {
+                menuSelectionSound.play();
                 Gdx.input.vibrate(20);
                 game.setScreen(new SettingsScreen(game));
                 dispose();
@@ -109,7 +112,15 @@ public class MainMenuScreen implements Screen
             // if the exit button is pressed, exit the app
             if (Exit_button.contains(tmp.x, tmp.y))
             {
+                menuSelectionSound.play();
                 Gdx.input.vibrate(20);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 dispose();
                 System.exit(1);
             }
@@ -142,6 +153,8 @@ public class MainMenuScreen implements Screen
     @Override
     public void dispose()
     {
+        menuSelectionSound.dispose();
+
         appLogo.dispose();
         button1_Start.dispose();
         button2_Instructions.dispose();
